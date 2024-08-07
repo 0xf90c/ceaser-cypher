@@ -1,44 +1,98 @@
+use std::collections::HashSet;
 use std::io;
 
-fn main() {
-    println!("Ceaser Cypher");
+// #[derive(Debug)]
+// struct Encrypt {
+//     shift: i8,
+//     index: i8,
+// }
+//
+// impl Encrypt {
+//     fn encrypt(&self) {
+//         (self.shift + self.index) % 26;
+//     }
+// }
+//
+// struct Decrypt {
+//     shift: i8,
+//     index: i8,
+// }
+//
+// impl Decrypt {
+//     fn decrypt(&self) {
+//         (self.index + 26 - self.shift) % 26;
+//     }
+// }
 
-    println!("How many number should shift:");
-    let shifting_number = 5;
-
-    let mut u_input = String::new();
-
-    println!("Please enter a text that need to encrypted:");
-    io::stdin()
-               .read_line(&mut u_input)
-               .expect("Failed to read line");
-    let upper_case_letters = ['A', 'B', 'C', 'D', 'E', 
-                                          'F', 'G', 'H', 'I', 'J', 
-                                          'K', 'L', 'M', 'N', 'O', 
-                                          'P', 'Q', 'R', 'S', 'T', 
-                                          'U', 'V', 'W', 'X', 'Y', 'Z'];
-    let lower_case_letters = ['a', 'b', 'c', 'd', 'e', 
-                                          'f', 'g', 'h', 'i', 'j', 
-                                          'k', 'l', 'm', 'n', 'o', 
-                                          'p', 'q', 'r', 's', 't', 
-                                          'u', 'v', 'w', 'x', 'y', 'z'];
-
-    
-    let char_vec: Vec<char> = u_input.chars().collect();
-    let mut char_array: Vec<char> = Vec::new();
-    for c in char_vec{
-        char_array.push(c);
-    }
-
-    for char in char_array {
-        if let Some(index) = lower_case_letters.iter().position(|&char2| char2 == char) {
-            println!("Character '{}' found at index {} in the second array", char, index);
-            let shifted = index + shifting_number;
-        }
-    }
-    println!("{}", upper_case_letters[5]);
-    println!("{}", lower_case_letters[5]);
-    println!("addition of 2 and 3 is {}", shifting_number);
+fn string_to_char_arr(s: &str) -> Vec<char> {
+    s.chars().collect()
 }
 
+fn add_to_char(c: char, num: i32) -> char {
+    let new_code = c as u32 + num as u32;
+    std::char::from_u32(new_code).unwrap_or(c)
+}
 
+fn subtract_to_char(c: char, num: i32) -> char {
+    let new_code = c as u32 - num as u32;
+    std::char::from_u32(new_code).unwrap_or(c)
+}
+
+fn main() {
+    println!("Choose one option:");
+    println!("1. Encrypt");
+    println!("2. Decrypt");
+
+    let mut options = String::new();
+    io::stdin().read_line(&mut options).expect("Please enter a 1 or 2 option");
+
+    println!("Enter shifting number:");
+
+    let mut shifting_number = String::new();
+    io::stdin().read_line(&mut shifting_number).expect("Please enter an integer");
+    let shifting_number: i32 = shifting_number.trim().parse().expect("Please enter an integer");
+
+    // array-1
+    println!("Enter a plain text:");
+    let mut plain_text = String::new();
+    io::stdin().read_line(&mut plain_text).expect("Please enter a string");
+    let input_arr: Vec<char> = string_to_char_arr(&*plain_text);
+
+    // array-2
+    let lower_case_letters = vec!['a', 'b', 'c', 'd', 'e',
+                                        'f', 'g', 'h', 'i', 'j',
+                                        'k', 'l', 'm', 'n', 'o',
+                                        'p', 'q', 'r', 's', 't',
+                                        'u', 'v', 'w', 'x', 'y', 'z'];
+    let set1: HashSet<_> = input_arr.iter().cloned().collect();
+
+    let indices: Vec<usize> = lower_case_letters.iter()
+        .enumerate()
+        .filter(|(_, &c)| set1.contains(&c))
+        .map(|(i, _)| i)
+        .collect();
+
+    if options == "1" {
+        let mut mod_arr1: Vec<char> = lower_case_letters.clone();
+        for &ind in &indices{
+            mod_arr1[ind] = add_to_char(lower_case_letters[ind], shifting_number);
+        }
+        let final_mod_string: String = mod_arr1.iter().collect();
+
+        println!("encrypted string: {}", final_mod_string);
+    } else if options == "2" {
+        let mut mod_arr2: Vec<char> = lower_case_letters.clone();
+        for &ind in &indices{
+            mod_arr2[ind] = subtract_to_char(lower_case_letters[ind], shifting_number);
+        }
+        let final_mod_string: String = mod_arr2.iter().collect();
+
+        println!("encrypted string: {}", final_mod_string);
+    } else {
+        println!("Invalid input");
+    }
+
+
+
+
+}
